@@ -25,6 +25,7 @@ def run():
     tn = 0
 
     all_actions = []
+    all_actions_refined = []
 
     while True:
         # print('INDEXING AT - ', i)
@@ -53,7 +54,7 @@ def run():
             if len(execute) > 0:
 
                 print('TRADE DATE: ', session_date)
-                print('TRADE NUMBER: ', date_ctr)
+                # print('TRADE NUMBER: ', date_ctr)
                 # tn += 1
 
                 date_ctr += 1
@@ -80,14 +81,60 @@ def run():
     print(eval)
     print(date_ctr)
 
+    #refining transaction log to trade log:
+    fields = ['Date', 'Outcome', 'Time of Entry', 'Option Symbol', 'Entry Price', 'Exit Price', 'Time of Exit', 'SL', 'PnL', 'Cumulative PnL', 'Equity']
+    timeofentry = 0
+    entryprice = 0
+    total_pnl = 0
+    equity = 0
+    for a in all_actions:
+        if (a[0] == 'SOLD' and a[5] == True) or (a[0] == 'BOUGHT' and a[5] == False): #sold long or bought short
+            date = a[4][:11]
+            timeofexit = a[4][11:]
+            exitprice = a[2]/a[6]
+            optionticker = a[1]
+            profit = a[2] - entryprice*a[6]
+            total_pnl += profit
+            outcome = 'Bullish'
+            if profit <= 0:
+                outcome = 'Bearish'
+            SL = None
+
+            #calculating equity value
+            if a[5]:
+                equity -= a[2]
+            else:
+                equity += a[2]
+
+            new_row = (date, outcome, timeofentry, optionticker, entryprice, exitprice, timeofexit, SL, profit, total_pnl, equity)
+            all_actions_refined.append(new_row)
+
+            #resting values as it will allow easier debuging
+            timeofentry = 0
+            entryprice = 0
+        else: #sold short or bought long
+            #calculating equity value
+            if a[5]:
+                equity += a[2]
+            else:
+                equity -= a[2]
+
+            timeofentry = a[4][11:]
+            entryprice = a[2]/a[6]
+
+        
+
 
     # writing to csv file
     with open('writing/actions' + ticker + '.csv', 'w') as csvfile:
         # creating a csv writer object
         csvwriter = csv.writer(csvfile)
 
+         # writing the fields
+        csvwriter.writerow(fields)
+        
         # writing the data rows
-        csvwriter.writerows(all_actions)
+        csvwriter.writerows(all_actions_refined)
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ class position(object):
         self.ticker = ticker
         self.qty = qty
         self.buy_val = buy_val
-        self.trade_type = trade_type
+        self.trade_type = trade_type #shorting (false) or longing (true)
     def show(self):
         print(self.ticker, self.qty,
               self.buy_val)
@@ -27,7 +27,7 @@ def trade(execute, capital, positions):
                 positions.pop()
 
             print("BOUGHT -", e.ticker, " -", e.buy_val, ' -', e.trade_type)
-            executed.append(('BOUGHT', e.ticker, e.buy_val, capital, e.date, e.trade_type))
+            executed.append(('BOUGHT', e.ticker, e.buy_val, capital, e.date, e.trade_type, e.qty))
         elif e.sell:
             capital += e.sell_val
             capital -= transaction_cost
@@ -38,7 +38,7 @@ def trade(execute, capital, positions):
             else:
                 positions.pop()
             print("SOLD -", e.ticker, " -", e.sell_val)
-            executed.append(('SOLD', e.ticker, e.sell_val, capital, e.date, e.trade_type))
+            executed.append(('SOLD', e.ticker, e.sell_val, capital, e.date, e.trade_type, e.qty))
 
 
         ctr += 1

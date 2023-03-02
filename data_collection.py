@@ -86,7 +86,7 @@ def create_data(df):
 
 #main function for this file, returns pandas dataframe with all required columns calculated
 def get_data(ticker):
-    df = pd.read_csv('data/' + ticker + '.csv')
+    df = pd.read_csv('data_reduced/' + ticker + '.csv')
     df = create_data(df)
 
     return df
