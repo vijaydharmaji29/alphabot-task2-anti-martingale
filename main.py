@@ -14,6 +14,10 @@ def run():
     capital = 10000000
     icap = capital
 
+    expected = 1
+    p_win = 1
+    p_loss = 0
+
     positions = []
     date_ctr = 0
     date_checking = 0
@@ -44,7 +48,7 @@ def run():
             date_ctr = 0
         
         
-
+        capital_perc_kelly = 1
         
         execute, trade_type, eod = brain.calculate(capital, n, positions)
 
@@ -82,7 +86,7 @@ def run():
     print(date_ctr)
 
     #refining transaction log to trade log:
-    fields = ['Date', 'Outcome', 'Time of Entry', 'Option Symbol', 'Entry Price', 'Exit Price', 'Time of Exit', 'SL', 'PnL', 'Cumulative PnL', 'Equity']
+    fields = ['Date', 'Outcome', 'Time of Entry', 'Option Symbol', 'Entry Price', 'Exit Price', 'Time of Exit', 'Quantity', 'SL', 'PnL', 'Cumulative PnL', 'Equity']
     timeofentry = 0
     entryprice = 0
     total_pnl = 0
@@ -90,8 +94,9 @@ def run():
     for a in all_actions:
         if (a[0] == 'SOLD' and a[5] == True) or (a[0] == 'BOUGHT' and a[5] == False): #sold long or bought short
             date = a[4][:11]
+            qty = a[6]
             timeofexit = a[4][11:]
-            exitprice = a[2]/a[6]
+            exitprice = a[2]/qty
             optionticker = a[1]
             profit = a[2] - entryprice*a[6]
             total_pnl += profit
@@ -106,7 +111,8 @@ def run():
             else:
                 equity += a[2]
 
-            new_row = (date, outcome, timeofentry, optionticker, entryprice, exitprice, timeofexit, SL, profit, total_pnl, equity)
+
+            new_row = (date, outcome, timeofentry, optionticker, entryprice, exitprice, timeofexit, qty, SL, profit, total_pnl, equity)
             all_actions_refined.append(new_row)
 
             #resting values as it will allow easier debuging
@@ -126,7 +132,7 @@ def run():
 
 
     # writing to csv file
-    with open('writing/actions' + ticker + '.csv', 'w') as csvfile:
+    with open('refined_writing/actions' + ticker + '.csv', 'w') as csvfile:
         # creating a csv writer object
         csvwriter = csv.writer(csvfile)
 
@@ -135,6 +141,16 @@ def run():
         
         # writing the data rows
         csvwriter.writerows(all_actions_refined)
+
+
+    with open('writing/actions' + ticker + '.csv', 'w') as csvfile:
+        # creating a csv writer object
+        csvwriter = csv.writer(csvfile)
+        
+        # writing the data rows
+        csvwriter.writerows(all_actions)
+    
+    
 
 
 if __name__ == '__main__':

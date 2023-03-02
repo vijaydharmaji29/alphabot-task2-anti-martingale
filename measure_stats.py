@@ -31,8 +31,6 @@ def calc_drawdown():
     if tval < min:
         min = tval
 
-cc = 0
-
 # opening the CSV file
 with open('writing/actionsNIFTYBANK.csv', mode='r') as file:
     # reading the CSV file
@@ -40,7 +38,7 @@ with open('writing/actionsNIFTYBANK.csv', mode='r') as file:
 
     # displaying the contents of the CSV file
     for row in csvFile:
-        action, ticker, val, date, trade_type = row[0], row[1], float(row[2]), row[4], row[-1]
+        action, ticker, val, date, trade_type = row[0], row[1], float(row[2]), row[4], row[-2]
         date = datetime.strptime(date, "%d-%m-%Y %H:%M")
         if flag:
             start_date = date
@@ -53,9 +51,6 @@ with open('writing/actionsNIFTYBANK.csv', mode='r') as file:
         if val == 0:
             continue
 
-        # print(action, ticker, val, date, trade_type)
-        cc += 1
-
         if action == 'BOUGHT':
             capital -= val
             
@@ -67,7 +62,7 @@ with open('writing/actionsNIFTYBANK.csv', mode='r') as file:
                     profitable_trades.append(trade)
                 else:
                     loss_making_trades.append(trade)
-                
+                    
                 position_ticker.pop(ticker)
             else:
                 position_ticker[ticker] = val
@@ -83,15 +78,14 @@ with open('writing/actionsNIFTYBANK.csv', mode='r') as file:
                     profitable_trades.append(trade)
                 else:
                     loss_making_trades.append(trade)
-                
+                    
                 position_ticker.pop(ticker)
             else:
                 position_ticker[ticker] = val
 
         calc_drawdown()
-        
-#calculating all stats:
 
+##calculating all stats:
 no_proftable_trades = len(profitable_trades)
 no_loss_making_trades = len(loss_making_trades)
 no_total_trades = no_loss_making_trades+no_proftable_trades
