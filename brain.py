@@ -17,23 +17,38 @@ class action(object):
               self.sell, self.buy_val, self.sell_val)
 
 
-def calculate(capital, df, positions):
+def calculate(capital, df, positions, stop_loss_given):
     execute = []
+    stop_loss = None
 
-    lot_size = 25
+    lot_size = 1
 
     for i in range(len(df)):
 
         trade_type = False
         eod = False
+        stop_loss = None
+
+        #checking for stop_loss
+        if stop_loss_given != None:
+            if df.iloc[i]['close'] < stop_loss_given and len(positions) and positions[0].trade_type == True:
+                for p in positions:
+                    sell_val = p.qty*df.iloc[i]['close']
+                    new_action = action(p.ticker, p.qty, False, True, 0, sell_val, df.iloc[i]['date'], p.trade_type)
+                    execute.append(new_action)
+            elif df.iloc[i]['close'] > stop_loss_given and len(positions) and positions[0].trade_type == False:
+                for p in positions:
+                    sell_val = p.qty*df.iloc[i]['close']
+                    new_action = action(p.ticker, p.qty, False, True, 0, sell_val, df.iloc[i]['date'], p.trade_type)
+                    execute.append(new_action)
+            continue
 
         #squaring off at the end of the day
         if (df.iloc[i]['time'] == '15:29:00'): 
             for p in positions:
                 sell_val = p.qty*df.iloc[i]['close']
-                new_action = action(p.ticker, p.qty, False, True, 0, sell_val, df.iloc[i]['date'])
+                new_action = action(p.ticker, p.qty, False, True, 0, sell_val, df.iloc[i]['date'], p.trade_type)
                 execute.append(new_action)
-                # print('yes')
                 eod = True
             continue
 
@@ -42,7 +57,9 @@ def calculate(capital, df, positions):
             qty = int(capital/(df.iloc[i]['close']*lot_size))
             buy_val = qty*df.iloc[i]['close']*lot_size
             new_action = action(df.iloc[i]['symbol'], qty, True, False, buy_val, 0, df.iloc[i]['date'], True)
-            execute.append(new_action)
+            stop_loss = 0.9*df.iloc[i]['close']
+            if qty > 0:
+                execute.append(new_action)
         elif (df.iloc[i]['close'] < df.iloc[i]['filt']) and (df.iloc[i]['close_dif'] < 0) and (df.iloc[i]['direction'] == -1) and (df.iloc[i]['pivot'] == -1) and (len(positions) == 1) and positions[0].trade_type == True: #long sell
             qty = positions[0].qty
             sell_val = qty*df.iloc[i]['close']*lot_size
@@ -50,17 +67,18 @@ def calculate(capital, df, positions):
             
             if positions[0].buy_val < df.iloc[i]['close']:
                 trade_type = True
-
-            execute.append(new_action)
+            
+            if qty > 0:
+                execute.append(new_action)
         
         #shorting stocks
         elif (df.iloc[i]['close'] < df.iloc[i]['filt']) and (df.iloc[i]['close_dif'] < 0) and (df.iloc[i]['direction'] == -1) and (df.iloc[i]['pivot'] == -1) and (len(positions) == 0): #short sell
-            qty = lot_size
-
+            qty = int(capital/(df.iloc[i]['close']*lot_size*1.1))
             sell_val = qty*df.iloc[i]['close']*lot_size
             new_action = action(df.iloc[i]['symbol'], qty, False, True, 0, sell_val, df.iloc[i]['date'], False)
-
-            execute.append(new_action) 
+            stop_loss = 1.1*df.iloc[i]['close']
+            if qty > 0:
+                execute.append(new_action) 
 
         elif (df.iloc[i]['close'] > df.iloc[i]['filt']) and (df.iloc[i]['close_dif'] > 0) and (df.iloc[i]['direction'] == 1) and (df.iloc[i]['pivot'] == 1) and (len(positions) == 1) and positions[0].trade_type == False: #short buy
             qty = positions[0].qty
@@ -70,12 +88,13 @@ def calculate(capital, df, positions):
             if positions[0].buy_val < df.iloc[i]['close']:
                 trade_type = True
 
-            execute.append(new_action)
+            if qty > 0:
+                execute.append(new_action)
 
-        print(df.iloc[i]['close'], df.iloc[i]['filt'], df.iloc[i]['close_dif'], df.iloc[i]['direction'], df.iloc[i]['pivot'], len(positions))
+        #print(df.iloc[i]['close'], df.iloc[i]['filt'], df.iloc[i]['close_dif'], df.iloc[i]['direction'], df.iloc[i]['pivot'], len(positions))
 
 
-    return execute, trade_type, eod
+    return execute, trade_type, eod, stop_loss
 
 
 

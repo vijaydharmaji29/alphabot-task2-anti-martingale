@@ -13,15 +13,19 @@ def run():
     
     capital = 10000000
     icap = capital
+    stop_loss = None
 
-    expected = 1
-    p_win = 1
-    p_loss = 0
+    expected = 1.4
+    p_win = 0.42
+    p_loss = 0.58
+    #capital_perc_kelly = (expected*p_win - p_loss)/expected
+    capital_perc_kelly = 1
+
 
     positions = []
     date_ctr = 0
     date_checking = 0
-    max_trades_per_day = 4
+    max_trades_per_day = 5
 
     percent = 1
 
@@ -47,13 +51,11 @@ def run():
             date_checking = session_date
             date_ctr = 0
         
-        
-        capital_perc_kelly = 1
-        
-        execute, trade_type, eod = brain.calculate(capital, n, positions)
+        execute, trade_type, eod, stop_loss = brain.calculate(capital*capital_perc_kelly, n, positions, stop_loss)
 
-        if eod or date_ctr < 10:
-            capital, executed, positions = executioner.trade(execute, capital, positions)
+        if eod or date_ctr < max_trades_per_day*2:
+            extra_cap, executed, positions = executioner.trade(execute, capital*capital_perc_kelly, positions)
+            capital += extra_cap
 
             if len(execute) > 0:
 
@@ -129,7 +131,6 @@ def run():
             entryprice = a[2]/a[6]
 
         
-
 
     # writing to csv file
     with open('refined_writing/actions' + ticker + '.csv', 'w') as csvfile:
