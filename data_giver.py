@@ -4,7 +4,7 @@ import pandas as pd
 import data_collection as dc
 
 # tickers = os.listdir('big_data/')
-tickers = ['NIFTYBANK']
+tickers = ['TCS']
 
 print('GETTING STOCK DATA')
 
@@ -19,7 +19,7 @@ def next(index):
 
     if index < len(stocks_data[tickers[0]]):
         data = {
-            'symbol': [], 'close':[], 'filt': [], 'close_dif': [], 'direction':[], 'pivot': [],'date': [], 'time': [], 'date_actual': []
+            'symbol': [], 'close':[], 'filt': [], 'close_dif': [], 'direction':[], 'resistances': [], 'supports': [], 'date': [], 'time': [], 'date_actual': []
         }
 
         for t in tickers:
@@ -28,7 +28,8 @@ def next(index):
             filt = stocks_data[t].iloc[index]['filt']
             close_dif = stocks_data[t].iloc[index]['close_dif']
             direction = stocks_data[t].iloc[index]['direction']
-            pivot = stocks_data[t].iloc[index]['pivot']
+            resistance = stocks_data[t].iloc[index]['resistances']
+            supports = stocks_data[t].iloc[index]['supports']
             date = stocks_data[t].iloc[index]['datetime']
             time = stocks_data[t].iloc[index]['time']
             date_actual = stocks_data[t].iloc[index]['date']
@@ -38,10 +39,11 @@ def next(index):
             data['filt'].append(filt)
             data['close_dif'].append(close_dif)
             data['direction'].append(direction)
-            data['pivot'].append(pivot)
             data['date'].append(date)
             data['time'].append(time)
             data['date_actual'].append(date_actual)
+            data['resistances'].append(resistance)
+            data['supports'].append(supports)
 
 
         df = pd.DataFrame(data, index=data['symbol'])

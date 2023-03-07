@@ -7,7 +7,7 @@ import pandas
 import data_collection as dc
 import numpy as np
 
-ticker = 'NIFTYBANK'
+ticker = 'TCS'
 
 def run():
     
@@ -18,8 +18,8 @@ def run():
     expected = 1.4
     p_win = 0.42
     p_loss = 0.58
-    #capital_perc_kelly = (expected*p_win - p_loss)/expected
-    capital_perc_kelly = 1
+    capital_perc_kelly = (expected*p_win - p_loss)/expected
+    #capital_perc_kelly = 1
 
 
     positions = []
@@ -55,7 +55,7 @@ def run():
 
         if eod or date_ctr < max_trades_per_day*2:
             extra_cap, executed, positions = executioner.trade(execute, capital*capital_perc_kelly, positions)
-            capital += extra_cap
+            capital = capital*(1 - capital_perc_kelly) + extra_cap
 
             if len(execute) > 0:
 

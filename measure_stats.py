@@ -32,14 +32,14 @@ def calc_drawdown():
         min = tval
 
 # opening the CSV file
-with open('writing/actionsNIFTYBANK.csv', mode='r') as file:
+with open('writing/actionsTCS.csv', mode='r') as file:
     # reading the CSV file
     csvFile = csv.reader(file)
 
     # displaying the contents of the CSV file
     for row in csvFile:
         action, ticker, val, date, trade_type = row[0], row[1], float(row[2]), row[4], row[-2]
-        date = datetime.strptime(date, "%d-%m-%Y %H:%M")
+        date = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
         if flag:
             start_date = date
             end_date = date

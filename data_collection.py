@@ -37,13 +37,48 @@ def calculate_close_dif(close):
 
     for i in range(1, len(close)):
         close_dif.append((close[i] - close[i-1]))
-        if (close[i] - close[i-1]) > 0:
+        if (close[i] - close[i-1]) > 0: #calculates if it's upwards or downwards
             direction.append(1)
         else:
             direction.append(-1)
     return np.array(close_dif), np.array(direction)
 
-def calculate_pivot(directions):
+def calculate_pivot(df):
+    resitances = []
+    supports = []
+
+    prev_day = {'High': 0, 'Low': 0, 'Close': 0} #high, low, close
+    current_day = {'High': 0, 'Low': 0, 'Close': 0} #high, low, close
+
+    pivot, rl3, sl3, sl1, rl1 = 0, 0, 0, 0, 0
+
+    for i in range(len(df)):
+        current_day['Close'] = df.iloc[i]['close']
+        if current_day['High'] < df.iloc[i]['close']: #adjusting highs
+            current_day['High'] = df.iloc[i]['close']
+        
+        if current_day['Low'] > df.iloc[i]['close']: #adjusting lows
+            current_day['Low'] = df.iloc[i]['close']
+
+        #adding pivots, resistance, support levels
+        if pivot == 0: #for the first day's values
+            resitances.append(None)
+            supports.append(None)
+        else:
+            resitances.append(rl1)
+            supports.append(sl1)
+        
+        if df.iloc[i]['time'] == '15:29:00': #last session of the day
+            prev_day = current_day
+            pivot = (prev_day['High'] + prev_day['Low'] + prev_day['Close'])/3
+            rl3 = prev_day['High'] + 2*(pivot - prev_day['Low'])
+            sl3 = prev_day['Low'] - 2*(prev_day['High'] - pivot)
+            rl1 = pivot*2 - prev_day['Low']
+            sl1 = pivot*2 - prev_day['High']
+
+    return np.array(resitances), np.array(supports)
+
+def fake_pivot(directions):
     pivot = [None]
 
     for i in range(1, len(directions)):
@@ -65,10 +100,13 @@ def create_time(datetime):
     return np.array(time)
 
 def create_data(df):
+
+    df['time'] = create_time(df['datetime'])
+
     smrng = smoothrng(df["close"], 16, 3)
     filt = rngfilt(df["close"], smrng)  # doing one more activity to something to the close prices
     close_diff, direction = calculate_close_dif(df['close'])
-    pivot = calculate_pivot(direction)
+    resistances, supports = calculate_pivot(df)
 
     df = df.astype({'datetime': 'string'})
     df['date'] = df.datetime.str[:10]  # craeting a column for only the date
@@ -77,8 +115,9 @@ def create_data(df):
     df["filt"] = filt
     df['close_dif'] = close_diff
     df['direction'] = direction
-    df['pivot'] = pivot
-    df['time'] = create_time(df['datetime'])
+    df['resistances'] = resistances
+    df['supports'] = supports
+    df['fake_pivot'] = fake_pivot(direction)
 
     df = df.dropna()
 
@@ -93,7 +132,7 @@ def get_data(ticker):
 
 
 if __name__ == '__main__':
-    ticker = 'NIFTYBANK'
+    ticker = 'TCS'
     df = get_data(ticker)
     print(df.head(20))
-    # print('a', df.iloc[400]['time'], 'a')
+    # print(df.iloc[500:1000])

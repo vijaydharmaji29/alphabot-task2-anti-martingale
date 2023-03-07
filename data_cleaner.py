@@ -4,7 +4,7 @@
 import csv
 
 # csv file name
-filename = "data/RELIANCE.csv"
+filename = "data/TCS.csv"
  
 # initializing the titles and rows list
 fields = []
@@ -39,7 +39,7 @@ for row in rows[:5]:
 #WRITING TO CSV FILES
 
 # name of csv file
-filename = "data_reduced/RELIANCE.csv"
+filename = "data_reduced/TCS.csv"
  
 # writing to csv file
 with open(filename, 'w') as csvfile:
