@@ -28,7 +28,7 @@ def calculate(capital, df, positions, stop_loss_given):
         trade_type = False
         eod = False
         stop_loss = None
-        slrl_limit = 20
+        slrl_limit = 100
 
         #checking for stop_loss
         # if stop_loss_given != None:
@@ -54,14 +54,14 @@ def calculate(capital, df, positions, stop_loss_given):
             continue
 
         #longing stocks
-        if (df.iloc[i]['close'] > df.iloc[i]['filt']) and (df.iloc[i]['close_dif'] > 0) and (df.iloc[i]['direction'] == 1) and (df.iloc[i]['supports'] - slrl_limit < df.iloc[i]['close']) and (df.iloc[i]['supports'] + slrl_limit < df.iloc[i]['close']) and (len(positions) == 0): #long buy
+        if (df.iloc[i]['close'] > df.iloc[i]['filt']) and (df.iloc[i]['close_dif'] > 0) and (df.iloc[i]['supports'] - slrl_limit < df.iloc[i]['close']) and (df.iloc[i]['supports'] + slrl_limit < df.iloc[i]['close']) and (len(positions) == 0): #long buy
             qty = int(capital/(df.iloc[i]['close']*lot_size))
             buy_val = qty*df.iloc[i]['close']*lot_size
             new_action = action(df.iloc[i]['symbol'], qty, True, False, buy_val, 0, df.iloc[i]['date'], True)
             stop_loss = 0.9*df.iloc[i]['close']
             if qty > 0:
                 execute.append(new_action)
-        elif (df.iloc[i]['close'] < df.iloc[i]['filt']) and (df.iloc[i]['close_dif'] < 0) and (df.iloc[i]['direction'] == -1) and (df.iloc[i]['resistances'] + slrl_limit > df.iloc[i]['close']) and (df.iloc[i]['resistances'] - slrl_limit < df.iloc[i]['close']) and (len(positions) == 1) and positions[0].trade_type == True: #long sell
+        elif (df.iloc[i]['close'] < df.iloc[i]['filt']) and (df.iloc[i]['close_dif'] < 0) and (df.iloc[i]['resistances'] + slrl_limit > df.iloc[i]['close']) and (df.iloc[i]['resistances'] - slrl_limit < df.iloc[i]['close']) and (len(positions) == 1) and positions[0].trade_type == True: #long sell
             qty = positions[0].qty
             sell_val = qty*df.iloc[i]['close']*lot_size
             new_action = action(df.iloc[i]['symbol'], qty, False, True, 0, sell_val, df.iloc[i]['date'], True)
@@ -73,7 +73,7 @@ def calculate(capital, df, positions, stop_loss_given):
                 execute.append(new_action)
         
         #shorting stocks
-        elif (df.iloc[i]['close'] < df.iloc[i]['filt']) and (df.iloc[i]['close_dif'] < 0) and (df.iloc[i]['direction'] == -1) and (df.iloc[i]['resistances'] + slrl_limit > df.iloc[i]['close']) and (df.iloc[i]['resistances'] - slrl_limit < df.iloc[i]['close']) and (len(positions) == 0): #short sell
+        elif (df.iloc[i]['close'] < df.iloc[i]['filt']) and (df.iloc[i]['close_dif'] < 0) and (df.iloc[i]['resistances'] + slrl_limit > df.iloc[i]['close']) and (df.iloc[i]['resistances'] - slrl_limit < df.iloc[i]['close']) and (len(positions) == 0): #short sell
             qty = int(capital/(df.iloc[i]['close']*lot_size))
             sell_val = qty*df.iloc[i]['close']*lot_size
             new_action = action(df.iloc[i]['symbol'], qty, False, True, 0, sell_val, df.iloc[i]['date'], False)
@@ -81,7 +81,7 @@ def calculate(capital, df, positions, stop_loss_given):
             if qty > 0:
                 execute.append(new_action) 
 
-        elif (df.iloc[i]['close'] > df.iloc[i]['filt']) and (df.iloc[i]['close_dif'] > 0) and (df.iloc[i]['direction'] == 1) and (df.iloc[i]['supports'] - slrl_limit < df.iloc[i]['close']) and (df.iloc[i]['supports'] + slrl_limit < df.iloc[i]['close']) and (len(positions) == 1) and positions[0].trade_type == False: #short buy
+        elif (df.iloc[i]['close'] > df.iloc[i]['filt']) and (df.iloc[i]['close_dif'] > 0) and (df.iloc[i]['supports'] - slrl_limit < df.iloc[i]['close']) and (df.iloc[i]['supports'] + slrl_limit < df.iloc[i]['close']) and (len(positions) == 1) and positions[0].trade_type == False: #short buy
             qty = positions[0].qty
             buy_val = qty*df.iloc[i]['close']*lot_size
             new_action = action(df.iloc[i]['symbol'], qty, True, False, buy_val, 0, df.iloc[i]['date'], False)

@@ -65,8 +65,8 @@ def calculate_pivot(df):
             resitances.append(None)
             supports.append(None)
         else:
-            resitances.append(rl1)
-            supports.append(sl1)
+            resitances.append(rl3)
+            supports.append(sl3)
         
         if df.iloc[i]['time'] == '15:29:00': #last session of the day
             prev_day = current_day

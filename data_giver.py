@@ -19,7 +19,7 @@ def next(index):
 
     if index < len(stocks_data[tickers[0]]):
         data = {
-            'symbol': [], 'close':[], 'filt': [], 'close_dif': [], 'direction':[], 'resistances': [], 'supports': [], 'date': [], 'time': [], 'date_actual': []
+            'symbol': [], 'close':[], 'filt': [], 'close_dif': [], 'direction':[], 'fake_pivot': [], 'resistances': [], 'supports': [], 'date': [], 'time': [], 'date_actual': []
         }
 
         for t in tickers:
@@ -33,6 +33,7 @@ def next(index):
             date = stocks_data[t].iloc[index]['datetime']
             time = stocks_data[t].iloc[index]['time']
             date_actual = stocks_data[t].iloc[index]['date']
+            fake_pivot = stocks_data[t].iloc[index]['fake_pivot']
 
             data['symbol'].append(symbol)
             data['close'].append(close)
@@ -44,6 +45,7 @@ def next(index):
             data['date_actual'].append(date_actual)
             data['resistances'].append(resistance)
             data['supports'].append(supports)
+            data['fake_pivot'].append(fake_pivot)
 
 
         df = pd.DataFrame(data, index=data['symbol'])
