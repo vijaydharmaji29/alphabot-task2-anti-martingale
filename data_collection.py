@@ -47,34 +47,26 @@ def calculate_pivot(df):
     resitances = []
     supports = []
 
-    prev_day = {'High': 0, 'Low': 0, 'Close': 0} #high, low, close
-    current_day = {'High': 0, 'Low': 0, 'Close': 0} #high, low, close
-
-    pivot, rl3, sl3, sl1, rl1 = 0, 0, 0, 0, 0
-
     for i in range(len(df)):
-        current_day['Close'] = df.iloc[i]['close']
-        if current_day['High'] < df.iloc[i]['close']: #adjusting highs
-            current_day['High'] = df.iloc[i]['close']
-        
-        if current_day['Low'] > df.iloc[i]['close']: #adjusting lows
-            current_day['Low'] = df.iloc[i]['close']
 
-        #adding pivots, resistance, support levels
-        if pivot == 0: #for the first day's values
+        if i < 11 or i > len(df) - 12:
             resitances.append(None)
             supports.append(None)
-        else:
-            resitances.append(rl3)
-            supports.append(sl3)
+            continue
+
+        min = df.iloc[i]['close']
+        max = df.iloc[i]['close']
+
+        for j in range(i - 10, i+11):
+            if df.iloc[j]['close'] < min:
+                min = df.iloc[j]['close']
+            if df.iloc[j]['close'] > max:
+                min = df.iloc[j]['close']
+            
+        print(len(df), i)
         
-        if df.iloc[i]['time'] == '15:29:00': #last session of the day
-            prev_day = current_day
-            pivot = (prev_day['High'] + prev_day['Low'] + prev_day['Close'])/3
-            rl3 = prev_day['High'] + 2*(pivot - prev_day['Low'])
-            sl3 = prev_day['Low'] - 2*(prev_day['High'] - pivot)
-            rl1 = pivot*2 - prev_day['Low']
-            sl1 = pivot*2 - prev_day['High']
+        resitances.append(max)
+        supports.append(min)
 
     return np.array(resitances), np.array(supports)
 
@@ -132,7 +124,7 @@ def get_data(ticker):
 
 
 if __name__ == '__main__':
-    ticker = 'TCS'
+    ticker = 'NIFTYBANK'
     df = get_data(ticker)
     print(df.head(20))
     # print(df.iloc[500:1000])

@@ -7,7 +7,7 @@ import pandas
 import data_collection as dc
 import numpy as np
 
-ticker = 'TCS'
+ticker = 'NIFTYBANK'
 
 def run():
     

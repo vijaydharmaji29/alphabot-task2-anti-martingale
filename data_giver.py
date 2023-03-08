@@ -4,7 +4,7 @@ import pandas as pd
 import data_collection as dc
 
 # tickers = os.listdir('big_data/')
-tickers = ['TCS']
+tickers = ['NIFTYBANK']
 
 print('GETTING STOCK DATA')
 
