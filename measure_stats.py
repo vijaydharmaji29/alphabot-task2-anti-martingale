@@ -32,14 +32,14 @@ def calc_drawdown():
         min = tval
 
 # opening the CSV file
-with open('writing/actionsTCS.csv', mode='r') as file:
+with open('writing/actionsNIFTYBANK.csv', mode='r') as file:
     # reading the CSV file
     csvFile = csv.reader(file)
 
     # displaying the contents of the CSV file
     for row in csvFile:
         action, ticker, val, date, trade_type = row[0], row[1], float(row[2]), row[4], row[-2]
-        date = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+        date = datetime.strptime(date, "%d-%m-%Y %H:%M")
         if flag:
             start_date = date
             end_date = date
@@ -56,7 +56,7 @@ with open('writing/actionsTCS.csv', mode='r') as file:
             
             if trade_type == 'False':
                 trade_profit = position_ticker[ticker] - val
-                profit_percentage = trade_profit*100/position_ticker[ticker]
+                profit_percentage = trade_profit*100/val
                 trade = (ticker, position_ticker[ticker], val, trade_profit, profit_percentage)
                 if trade_profit > 0:
                     profitable_trades.append(trade)
@@ -71,7 +71,7 @@ with open('writing/actionsTCS.csv', mode='r') as file:
             capital += val
 
             if trade_type == 'True':   
-                trade_profit = position_ticker[ticker] - val
+                trade_profit = val - position_ticker[ticker]
                 profit_percentage = trade_profit*100/position_ticker[ticker]
                 trade = (ticker, position_ticker[ticker], val, trade_profit, profit_percentage)
                 if trade_profit > 0:

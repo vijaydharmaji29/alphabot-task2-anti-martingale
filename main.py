@@ -92,7 +92,7 @@ def run():
     timeofentry = 0
     entryprice = 0
     total_pnl = 0
-    equity = 0
+    equity = 10000000
     for a in all_actions:
         if (a[0] == 'SOLD' and a[5] == True) or (a[0] == 'BOUGHT' and a[5] == False): #sold long or bought short
             date = a[4][:11]
@@ -100,11 +100,16 @@ def run():
             timeofexit = a[4][11:]
             exitprice = a[2]/qty
             optionticker = a[1]
-            profit = a[2] - entryprice*a[6]
+
+            if a[5] == True:
+                profit = a[2] - entryprice*a[6]
+            else:
+                profit = entryprice*a[6] - a[2]
+            
             total_pnl += profit
-            outcome = 'Bullish'
-            if profit <= 0:
-                outcome = 'Bearish'
+            outcome = 'Long'
+            if a[-2] == False:
+                outcome = 'Short'
             SL = None
 
             #calculating equity value
